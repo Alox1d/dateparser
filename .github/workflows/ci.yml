@@ -1,0 +1,49 @@
+name: CI
+on:
+  push:
+  pull_request:
+  workflow_dispatch:
+permissions:
+  contents: read
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+jobs:
+  jvm-android:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '21'
+      - uses: gradle/actions/setup-gradle@v4
+      - uses: android-actions/setup-android@v3
+      - run: python3 scripts/generate_rules.py --check
+      - name: Test JVM, Android and demo
+        run: ./gradlew :dateparser:jvmTest :dateparser:testAndroidHostTest :app:assembleDebug --stacktrace
+      - name: Publish unsigned local variants
+        run: ./gradlew :dateparser:publishKotlinMultiplatformPublicationToTestRepository :dateparser:publishJvmPublicationToTestRepository :dateparser:publishAndroidPublicationToTestRepository -PlocalPublication=true
+      - name: Resolve from separate KMP consumer
+        run: ./gradlew -p integration/consumer jvmTest
+  apple:
+    runs-on: macos-15
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '21'
+      - uses: gradle/actions/setup-gradle@v4
+      - uses: android-actions/setup-android@v3
+      - name: Test iOS simulator and compile device library
+        run: ./gradlew :dateparser:iosSimulatorArm64Test :dateparser:compileKotlinIosArm64 --stacktrace
+      - name: Publish complete unsigned KMP artifact set
+        run: ./gradlew :dateparser:publishAllPublicationsToTestRepository -PlocalPublication=true --stacktrace
+      - name: Consume published iOS variants
+        run: ./gradlew -p integration/consumer iosSimulatorArm64Test --stacktrace
+      - uses: actions/upload-artifact@v4
+        with:
+          name: unsigned-kmp-test-repository
+          path: build/test-repository
+          retention-days: 7
