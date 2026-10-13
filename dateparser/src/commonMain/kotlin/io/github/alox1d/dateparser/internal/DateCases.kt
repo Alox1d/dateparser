@@ -10,7 +10,7 @@ internal enum class TimeTypes {
     seconds, minutes, hours, dates, months, nMonth, years
 }
 
-const val numberAndWordPrevalence = 50;
+internal const val numberAndWordPrevalence = 50;
 
 internal class DateCases(private val reference: LocalDateTime) {
     private val loader = Loader
