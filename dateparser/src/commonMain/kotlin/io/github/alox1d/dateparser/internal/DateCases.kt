@@ -104,31 +104,14 @@ internal class DateCases(private val reference: LocalDateTime) {
                             parsedTimes
                         );
                     }
-                    if (matchingParsedTimesIndexes.size > 0) {
-                        var i = matchingParsedTimesIndexes.size;
-                        var proceed = true;
-                        while (proceed && i-- > 0) {
-                            var parsedTime = parsedTimes[matchingParsedTimesIndexes[i]];
-                            if (parsedTime.timeType == TimeTypes.hours) {
-                                parsedTime.number =
-                                    processHour(
-                                        parsedTime.number,
-                                        expressionSet.expressions[index].value.toInt()
-                                    );
-                                parsedTime.prevalence += prevalence;
-                                proceed = false;
-                            }
-                            parsedTime.isFixed = true;
-                        }
-                        parsedTimes[matchingParsedTimesIndexes[i]].indexes.addAll(
-                            markIndexes(
-                                expressionSet,
-                                index,
-                                1,
-                                true,
-                                true
-                            )
-                        );
+                    val hourIndex = matchingParsedTimesIndexes.asReversed()
+                        .firstOrNull { parsedTimes[it].timeType == TimeTypes.hours }
+                    if (hourIndex != null) {
+                        val hour = parsedTimes[hourIndex]
+                        hour.number = processHour(hour.number, expressionSet.expressions[index].value.toInt())
+                        hour.prevalence += prevalence
+                        hour.isFixed = true
+                        hour.indexes.addAll(markIndexes(expressionSet, index, 1, true, true))
                     }
                 }
                 return parsedTimes;
@@ -166,7 +149,10 @@ internal class DateCases(private val reference: LocalDateTime) {
                         index,
                         expressionSet.expressions,
                         parsedTimes
-                    )
+                    ).filterTo(ArrayList()) {
+                        val field = parsedTimes[it]
+                        !(field.isFixed && field.timeType in listOf(TimeTypes.hours, TimeTypes.minutes, TimeTypes.seconds))
+                    }
                     parsedTimesIndexes.sort();
                     if (parsedTimesIndexes.size > 0) {
                         var i2 = parsedTimesIndexes.size;
@@ -189,6 +175,8 @@ internal class DateCases(private val reference: LocalDateTime) {
                                 TimeTypes.seconds,
                                 TimeTypes.years
                             )
+                        val fixedTypes = parsedTimes.filter { it.context == context && it.isFixed }.map { it.timeType }.toSet()
+                        notFoundTimeTypes.removeAll(fixedTypes)
                         while (i2-- > 0) {
                             var parsedTime = parsedTimes[parsedTimesIndexes[i2]];
                             var index2 = notFoundTimeTypes.indexOf(parsedTime.timeType);
@@ -434,12 +422,15 @@ internal class DateCases(private val reference: LocalDateTime) {
                         index,
                         expressionSet.expressions,
                         parsedTimes
-                    )
+                    ).filterTo(ArrayList()) {
+                        val field = parsedTimes[it]
+                        !(field.isFixed && field.timeType in listOf(TimeTypes.hours, TimeTypes.minutes, TimeTypes.seconds))
+                    }
                     parsedTimesIndexes.sort();
                     if (parsedTimes.size > 0) {
                         var indexes = markIndexes(expressionSet, index, 1, true, false);
                         var foundTimeTypes = ArrayList<TimeTypes>()
-                        for (i in parsedTimesIndexes) {
+                        for (i in parsedTimesIndexes.indices) {
                             val index = parsedTimesIndexes[i];
                             var parsedTime = parsedTimes[index];
                             if (foundTimeTypes.contains(parsedTime.timeType)) {
@@ -697,7 +688,7 @@ internal class DateCases(private val reference: LocalDateTime) {
                     var max =
                         expressionSet.expressions[index + matches.group().length - 1].maximum.toInt();
                     var validMode = ValidModes.notCertified;
-                    if (num > max && max != 0) {
+                    if (num < 1 || (num > max && max != 0)) {
                         validMode = ValidModes.notValid;
                     }
                     var indexes =
@@ -711,7 +702,7 @@ internal class DateCases(private val reference: LocalDateTime) {
                             indexes,
                             context,
                             prevalence,
-                            OptionModel(validMode = validMode)
+                            OptionModel(validMode = validMode, isExplicitDate = true)
 
                         )
                     );
@@ -723,7 +714,7 @@ internal class DateCases(private val reference: LocalDateTime) {
                             indexes,
                             context,
                             prevalence,
-                            OptionModel(validMode = validMode)
+                            OptionModel(validMode = validMode, isExplicitDate = true)
 
                         )
                     );
@@ -1212,7 +1203,7 @@ internal class DateCases(private val reference: LocalDateTime) {
                     parsedTimes.add(
                         ParsedTime(
                             DateTypes.target_date,
-                            TimeTypes.months,
+                            TimeTypes.nMonth,
                             num,
                             indexes,
                             context,
@@ -1459,7 +1450,7 @@ internal class DateCases(private val reference: LocalDateTime) {
                                 indexes,
                                 context,
                                 prevalence,
-                                OptionModel(validMode = ValidModes.certified)
+                                OptionModel(validMode = ValidModes.certified, isExplicitDate = true)
 
                             )
                         )
@@ -1471,7 +1462,7 @@ internal class DateCases(private val reference: LocalDateTime) {
                                 indexes,
                                 context,
                                 prevalence,
-                                OptionModel(validMode = ValidModes.certified)
+                                OptionModel(validMode = ValidModes.certified, isExplicitDate = true)
                             )
                         );
                         if (year != -1) {
@@ -1483,7 +1474,7 @@ internal class DateCases(private val reference: LocalDateTime) {
                                     indexes,
                                     context,
                                     prevalence,
-                                    OptionModel(validMode = ValidModes.certified)
+                                    OptionModel(validMode = ValidModes.certified, isExplicitDate = true)
 
                                 )
                             );
@@ -1513,12 +1504,14 @@ internal class DateCases(private val reference: LocalDateTime) {
                 i++
                 val index = matches.start()
 
-                var vals = expressionSet.expressions[index].text.split("[.:]".toRegex());
+                val token = expressionSet.expressions[index].text
+                var vals = token.split("[.:]".toRegex());
                 var hours = vals[0].toInt();
                 var minutes = vals[1].toInt();
                 var seconds = -1;
                 if (vals.size > 2) {
-                    if (matches.group()[2] == matches.group()[5] || matches.group()[1] == matches.group()[5]) {
+                    val separators = token.filter { it == ':' || it == '.' }
+                    if (separators.length == 2 && separators[0] == separators[1]) {
                         seconds = vals[2].toInt();
                     } else {
                         hours = 100;
@@ -1548,7 +1541,8 @@ internal class DateCases(private val reference: LocalDateTime) {
                             minutes,
                             indexes,
                             context,
-                            prevalence
+                            prevalence,
+                            OptionModel(isFixed = true)
                         )
                     );
                     if (seconds != -1) {
@@ -1559,7 +1553,8 @@ internal class DateCases(private val reference: LocalDateTime) {
                                 seconds,
                                 indexes,
                                 context,
-                                prevalence
+                                prevalence,
+                            OptionModel(isFixed = true)
                             )
                         );
                     }
@@ -2030,6 +2025,7 @@ internal class DateCases(private val reference: LocalDateTime) {
                     var indexes =
                         markIndexes(expressionSet, index, matches.group().length, false, true);
                     var context = processContexts(contextsData, indexes);
+                    contextsData.relativePeriods[context] = DateTimePeriod(minutes = 30)
                     val now = reference;
                     parsedTimes.add(
                         ParsedTime(
@@ -2266,6 +2262,7 @@ internal enum class ValidModes {
 internal data class OptionModel(
     val isOffset: Boolean = false,
     val isFixed: Boolean = false,
+    val isExplicitDate: Boolean = false,
     val validMode: ValidModes? = null
 )
 
@@ -2281,6 +2278,7 @@ internal data class ParsedTime(
 
     lateinit var validMode: ValidModes;
 
+    val isExplicitDate: Boolean = options?.isExplicitDate ?: false
     var isOffset: Boolean = false
 
     var isFixed: Boolean = false

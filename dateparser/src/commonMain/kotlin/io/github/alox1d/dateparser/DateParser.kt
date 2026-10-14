@@ -40,9 +40,19 @@ public class DateParser(private val clock: Clock = Clock.System) {
         } catch (_: NumberFormatException) {
             return emptyList()
         }
-        return fields.map { parsed ->
-            val instant = parsed.relativePeriod?.let { reference.plus(it, timeZone) }
-                ?: resolve(parsed.target_date, localReference).toInstant(timeZone)
+        return fields.mapNotNull { parsed ->
+            if (!validExplicitDate(parsed.target_date, localReference) || !validExplicitDate(parsed.max_date, localReference)) return@mapNotNull null
+            val instant = parsed.relativePeriod?.let { period ->
+                val shifted = reference.plus(period, timeZone)
+                val local = shifted.toLocalDateTime(timeZone)
+                val fields = parsed.target_date
+                if (fields.fixedHours != null || fields.fixedMinutes != null || fields.fixedSeconds != null) {
+                    val clockFields = TimeList().apply {
+                        hours = fields.fixedHours; minutes = fields.fixedMinutes; seconds = fields.fixedSeconds
+                    }
+                    resolve(clockFields, local).toInstant(timeZone)
+                } else shifted
+            } ?: resolve(parsed.target_date, localReference).toInstant(timeZone)
             val end = parsed.max_date.takeIf { it.hasFields() }?.let { resolve(it, localReference) }
             DateMatch(
                 instant.toLocalDateTime(timeZone), instant, timeZone,
@@ -71,4 +81,11 @@ private fun resolve(fields: TimeList, reference: LocalDateTime): LocalDateTime {
     date = date.plus(extraDays.toInt(), DateTimeUnit.DAY)
     val remainder = total.mod(86400)
     return LocalDateTime(date, LocalTime((remainder / 3600).toInt(), (remainder / 60 % 60).toInt(), (remainder % 60).toInt()))
+}
+
+private fun validExplicitDate(fields: TimeList, reference: LocalDateTime): Boolean {
+    if (!fields.hasExplicitDate) return true
+    return runCatching {
+        LocalDate(fields.years as Int? ?: reference.year, (fields.months as Int? ?: (reference.month.number - 1)) + 1, fields.dates as Int? ?: reference.day)
+    }.isSuccess
 }

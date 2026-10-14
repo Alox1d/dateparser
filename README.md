@@ -95,7 +95,7 @@ Use `io.github.alox1d.dateparser.DateParser` from shared code. The deprecated An
 
 ## Limits
 
-This is a rule-based parser, not a guarantee for arbitrary text. Numeric dates use day-month-year rules; English does not imply US month/day ordering. Missing date/time fields inherit the reference, and a bare clock time is not automatically moved into the future. Ambiguous natural-language phrases can need additional rules. Relative hours/minutes/seconds are elapsed time; relative days/months/years use calendar arithmetic in the chosen timezone, including month-end clamping. Recurrence describes an interval, not a complete scheduling engine. DST gaps/overlaps for explicit local times follow kotlinx-datetime resolution rules. An overflowing numeric token causes that parse call to return no matches.
+This is a rule-based parser, not a guarantee for arbitrary text. Numeric dates use day-month-year rules; English does not imply US month/day ordering. Missing date/time fields inherit the reference, and a bare clock time is not automatically moved into the future. The inherited hour-24 rule normalizes `24:30` to next-day `00:30`. Ambiguous natural-language phrases can need additional rules. Relative hours/minutes/seconds are elapsed time; relative days/months/years use calendar arithmetic in the chosen timezone, including month-end clamping. Recurrence describes an interval, not a complete scheduling engine. DST gaps/overlaps for explicit local times follow kotlinx-datetime resolution rules. An overflowing numeric token causes that parse call to return no matches.
 
 ## License and origin
 

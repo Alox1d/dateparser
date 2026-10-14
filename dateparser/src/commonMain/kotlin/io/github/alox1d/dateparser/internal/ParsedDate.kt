@@ -128,6 +128,13 @@ internal class ParseEngine(reference: LocalDateTime) {
             parsedTime: ParsedTime,
             timeList: TimeList
         ) {
+            if (parsedTime.isExplicitDate) timeList.hasExplicitDate = true
+            if (parsedTime.isFixed) when (parsedTime.timeType) {
+                TimeTypes.hours -> timeList.fixedHours = parsedTime.number
+                TimeTypes.minutes -> timeList.fixedMinutes = parsedTime.number
+                TimeTypes.seconds -> timeList.fixedSeconds = parsedTime.number
+                else -> Unit
+            }
             when (parsedTime.timeType) {
                 TimeTypes.seconds ->
                     timeList.seconds = parsedTime
@@ -181,24 +188,13 @@ internal class ParseEngine(reference: LocalDateTime) {
                 }
             }
 
-            fun FixComposedWordsEdges(_composedWords:ArrayList<Expression?>):ArrayList<Expression?> {
-                var composedWords = _composedWords
-                if (composedWords[0]!!.regex_char == "!" || composedWords[0]!!.regex_char == "I") {
-                    composedWords = composedWords.slice(1..composedWords.size-1) as ArrayList<Expression?>;
-                }
-                if (composedWords.size > 0) {
-                    var end = composedWords . size -1;
-                    var lastWord = composedWords [end];
-                    if (lastWord!!.regex_char == "!" || lastWord!!.regex_char == "I") {
-                        composedWords = composedWords.slice(0 until end) as ArrayList<Expression?>;
-                        end = composedWords.size - 1;
-                        lastWord = composedWords[end];
-                    }
-                    if (lastWord!!.is_separator) {
-                        lastWord.text = lastWord.text.substring(0, lastWord.text.length - 1);
-                    }
-                }
-                return composedWords;
+            fun FixComposedWordsEdges(source: ArrayList<Expression?>): ArrayList<Expression?> {
+                val words = ArrayList(source)
+                fun conjunction(word: Expression?) = word?.regex_char in listOf("!", "I")
+                while (words.isNotEmpty() && conjunction(words.first())) words.removeAt(0)
+                while (words.isNotEmpty() && conjunction(words.last())) words.removeAt(words.lastIndex)
+                words.lastOrNull()?.takeIf { it.is_separator }?.let { it.text = it.text.dropLast(1) }
+                return words
             }
 
             fun parseDate(
@@ -516,6 +512,10 @@ internal class ParseEngine(reference: LocalDateTime) {
             }
         }
 internal class TimeList() {
+        var hasExplicitDate: Boolean = false
+        var fixedHours: Int? = null
+        var fixedMinutes: Int? = null
+        var fixedSeconds: Int? = null
         var seconds: Any? = null
         var minutes: Any? = null
         var hours: Any? = null
