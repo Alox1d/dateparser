@@ -1,14 +1,14 @@
 ---
-title: DateParser Kotlin - Russian and English natural language date parser
+title: DateParser Kotlin - English and Russian natural language date parser
 ---
 
 # DateParser Kotlin
 
 [English](../en/index.md) | [Russian](../ru/index.md) | [Documentation](https://alox1d.github.io/dateparser-kotlin/)
 
-Offline Russian and English natural-language date/time parser for Kotlin Multiplatform. Extract dates, times, ranges and recurrence periods from reminder text on Android, JVM and iOS, without an account, API key or network service.
+Offline English and Russian natural-language date/time parser for Kotlin Multiplatform. Extract dates, times, ranges and recurrence periods from reminder text on Android, JVM and iOS, without an account, API key or network service.
 
-**Release status:** [version 0.1.0 is published on Maven Central](https://central.sonatype.com/artifact/io.github.alox1d/dateparser-kotlin/0.1.0).
+**Version:** 0.1.1 | [Maven Central](https://central.sonatype.com/artifact/io.github.alox1d/dateparser-kotlin/0.1.1) | [Release notes](https://github.com/Alox1d/dateparser-kotlin/blob/main/CHANGELOG.md).
 
 ## Installation
 
@@ -18,7 +18,7 @@ Add `mavenCentral()` and the dependency to your shared module:
 kotlin {
     sourceSets {
         commonMain.dependencies {
-            implementation("io.github.alox1d:dateparser-kotlin:0.1.0")
+            implementation("io.github.alox1d:dateparser-kotlin:0.1.1")
         }
     }
 }
@@ -45,17 +45,37 @@ val instant = matches.single().instant // 2024-02-28T15:15:00Z
 
 The Russian phrase `купить через 5 часов` produces the same instant. No Android `Context` or initialization is required. Passing reference time and timezone makes parsing reproducible. If omitted, the injected `Clock` (system clock by default) is read once and the system timezone is used. Results have second precision except elapsed offsets, which preserve reference subsecond precision.
 
-## Verified expression examples
+## English dates for the US and Europe
 
-These examples use the reference time above and UTC:
+Named dates work in either order, with full or abbreviated months and optional ordinals. These examples use the reference time above and UTC:
 
-- **Time:** English `meeting at 17:30` or Russian `встреча в 17:30` resolves to February 28, 2024 at 17:30.
-- **Numeric date:** `29.02.2024` resolves to February 29, 2024.
-- **Tomorrow:** English `tomorrow` or Russian `завтра` resolves to February 29, 2024.
-- **Relative time:** English `in 5 hours` or Russian `через 5 часов` resolves to February 28, 2024 at 15:15.
-- **Time range:** Russian `с 17:30 до 20:00` gives a start time of 17:30 and an end time of 20:00.
-- **Monthly recurrence:** English `every month` or Russian `каждый месяц` gives a calendar interval of one month.
-- **Two-day recurrence:** English `every 2 days` or Russian `каждые 2 дня` gives a calendar interval of two days.
+| Input | Result |
+| --- | --- |
+| `December 31, 2026 at 5PM` / `31st Dec 2026 at 5 pm` | 2026-12-31 17:00:00 |
+| `2026-12-31` | 2026-12-31 10:15:00 |
+| `13/04/2026` / `04/13/2026` | 2026-04-13 10:15:00 |
+| `today` / `yesterday` | 2024-02-28 / 2024-02-27, same reference clock |
+| `Friday` / `on Friday` | 2024-03-01, same reference clock |
+| `next week` / `next month` | 2024-03-06 / 2024-03-28 |
+| `in 1 month and 2 days` | 2024-03-30 10:15:00 |
+| `every 1 month and 2 days` | Calendar interval: 1 month and 2 days |
+| `tomorrow from 5PM to 8PM` | 2024-02-29 17:00:00 to 20:00:00 |
+| `Buy milk, at 17:30!` | 2024-02-28 17:30:00; remainder `Buy milk` |
+
+For an ambiguous numeric date, choose the field order explicitly:
+
+```kotlin
+import io.github.alox1d.dateparser.DateOrder
+
+val us = parser.parse("03/04/2026", DateOrder.MDY, reference, TimeZone.UTC)
+// March 4, 2026
+val eu = parser.parse("03/04/2026", DateOrder.DMY, reference, TimeZone.UTC)
+// April 3, 2026
+```
+
+Without `DateOrder`, distinct ambiguous slash dates return no matches. Unambiguous slash dates and ISO dates are accepted automatically. `DateOrder.YMD` supports year/month/day slash dates. Dot dates retain the existing day/month/year convention, regardless of the selected slash order.
+
+Russian examples include `завтра`, `через 5 часов`, `29.02.2024`, `завтра с 17:30 до 20:00`, `каждый месяц` and `каждые 2 дня`. English `in 5 hours` and Russian `через 5 часов` resolve to the same instant.
 
 ## Result and options
 
@@ -92,7 +112,7 @@ Run these commands from the repository root:
 - Root metadata: `./gradlew :dateparser:publishKotlinMultiplatformPublicationToTestRepository -PlocalPublication=true`.
 - JVM artifact: `./gradlew :dateparser:publishJvmPublicationToTestRepository -PlocalPublication=true`.
 - Android artifact: `./gradlew :dateparser:publishAndroidPublicationToTestRepository -PlocalPublication=true`.
-- Consumer verification: `./gradlew -p integration/consumer jvmTest`.
+- Consumer verification: `./gradlew -p integration/consumer jvmTest testAndroidHostTest`.
 
 This writes an unsigned test Maven repository to `build/test-repository`. A separate KMP consumer resolves the real root metadata and platform artifacts. For a local iOS consumer, also run `:dateparser:publishAllPublicationsToTestRepository -PlocalPublication=true` on a Mac with Xcode. Do not use the local-publication flag for Central releases. See [publishing instructions](https://github.com/Alox1d/dateparser-kotlin/blob/main/docs/PUBLISHING.md).
 
@@ -102,7 +122,11 @@ Use `io.github.alox1d.dateparser.DateParser` from shared code. The deprecated An
 
 ## Limits
 
-This is a rule-based parser, not a guarantee for arbitrary text. Numeric dates use day-month-year rules; English does not imply US month/day ordering. Missing date/time fields inherit the reference, and a bare clock time is not automatically moved into the future. The inherited hour-24 rule normalizes `24:30` to next-day `00:30`. Ambiguous natural-language phrases can need additional rules. Relative hours/minutes/seconds are elapsed time; relative days/months/years use calendar arithmetic in the chosen timezone, including month-end clamping. Recurrence describes an interval, not a complete scheduling engine. DST gaps/overlaps for explicit local times follow kotlinx-datetime resolution rules. An overflowing numeric token causes that parse call to return no matches.
+This is a rule-based parser with verified English and Russian forms; arbitrary prose can require additional rules. Missing date/time fields inherit the reference, except explicit English AM/PM clocks: `5PM` means `17:00:00`, and `5:30PM` means `17:30:00`. A bare clock is not automatically moved into the future. The inherited hour-24 rule normalizes `24:30` to next-day `00:30`. Weekdays mean the nearest occurrence, including today; `next Friday` skips a current Friday.
+
+Relative hours/minutes/seconds are elapsed time; relative days/months/years use calendar arithmetic in the selected timezone, including month-end clamping. `next week/month/year` means a one-unit calendar offset from the reference. Recurrence must be positive and describes an interval, rather than a complete schedule.
+
+A range end with no date inherits the start's calendar date. An earlier end clock rolls to the next day; inverted explicit dates return no match. Relative offsets used as range ends are currently rejected. Explicit DST gaps/overlaps follow kotlinx-datetime resolution rules, and both local boundaries reflect the resolved instants. A recognized invalid date/AMPM clock, an unresolved ambiguous slash date or a numeric overflow rejects the entire input, avoiding an unrelated partial match. `remainingText` preserves reminder words and case, but is not a byte-for-byte reconstruction or a source span.
 
 ## License and origin
 

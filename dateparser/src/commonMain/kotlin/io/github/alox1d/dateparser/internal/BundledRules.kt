@@ -59,6 +59,8 @@ internal object BundledRules {
         Expression("weeks", "w", 0.0, 0.0, 7.0, false),
         Expression("months", "K", 0.0, 0.0, 0.0, false),
         Expression("years", "y", 0.0, 0.0, 0.0, false),
+        Expression("today", "A", 0.0, 0.0, 0.0, false),
+        Expression("yesterday", "A", 0.0, -1.0, 0.0, false),
     )
     val ru = listOf(
         Expression("секунда", "s", 2.0, 0.0, 60.0, false),
@@ -136,7 +138,7 @@ internal object BundledRules {
     )
     val regexs = listOf(
         Expression("[0-9]{1,2}[:\\.][0-9]{2}(:[0-9]{1,2}){0,1}", "t", 0.0, 0.0, 0.0, true),
-        Expression("^[0-9]{1,2}\$", "n", 0.0, 0.0, 0.0, true),
+        Expression("^[+-]?[0-9]+\$", "n", 0.0, 0.0, 0.0, true),
         Expression("^[0-9]{4}\$", "N", 0.0, 0.0, 0.0, true),
         Expression("[0-9]{1,2}\\.[0-9]{2}(\\.[0-9]{1,4}){0,1}", "D", 0.0, 0.0, 0.0, true),
     )

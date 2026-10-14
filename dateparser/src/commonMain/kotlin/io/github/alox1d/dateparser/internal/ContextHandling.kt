@@ -61,13 +61,7 @@ internal class ContextHandling {
                     if (atEnd) {
                         (parsedDates[parsedDateIndex].string as ArrayList<Expression?>).addAll(words);
                     } else {
-                        if (endChar == ".") {
-                            (parsedDates[parsedDateIndex].string as ArrayList<Expression?>).addAll(0,words);
-                            val nextWordText = (parsedDates[parsedDateIndex].string as ArrayList<Expression?>)[1]!!.text;
-                            (parsedDates[parsedDateIndex].string as ArrayList<Expression?>)[1]!!.text = nextWordText[0].uppercaseChar() + nextWordText.substring(1);
-                        } else {
-                            (parsedDates[parsedDateIndex].string as ArrayList<Expression?>).addAll(0,words);
-                        }
+                        (parsedDates[parsedDateIndex].string as ArrayList<Expression?>).addAll(0, words);
                     }
                     result = true;
                 }

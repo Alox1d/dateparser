@@ -28,7 +28,15 @@ jobs:
         run: ./gradlew :dateparser:publishKotlinMultiplatformPublicationToTestRepository :dateparser:publishJvmPublicationToTestRepository :dateparser:publishAndroidPublicationToTestRepository -PlocalPublication=true
       - run: python3 scripts/check_publication.py build/test-repository
       - name: Resolve from separate KMP consumer
-        run: ./gradlew -p integration/consumer jvmTest
+        run: ./gradlew -p integration/consumer jvmTest testAndroidHostTest
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: jvm-android-test-results
+          path: |
+            dateparser/build/test-results/
+            integration/consumer/build/test-results/
+          retention-days: 7
   apple:
     runs-on: macos-15
     steps:
@@ -52,4 +60,12 @@ jobs:
         with:
           name: unsigned-kmp-test-repository
           path: build/test-repository
+          retention-days: 7
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: apple-test-results
+          path: |
+            dateparser/build/test-results/
+            integration/consumer/build/test-results/
           retention-days: 7

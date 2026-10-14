@@ -160,12 +160,12 @@ internal class DateCases(private val reference: LocalDateTime) {
                         val indexes = markIndexes(expressionSet, index, 1, true, false);
                         val context = processContexts(contextsData, indexes);
                         val offsets = parsedTimesIndexes.map { parsedTimes[it] }
-                        fun amount(type: TimeTypes) = offsets.filter { it.timeType == type }.sumOf { it.number }
-                        contextsData.relativePeriods[context] = DateTimePeriod(
+                        fun amount(type: TimeTypes) = checkedPeriodAmount(offsets.filter { it.timeType == type }.sumOf { it.number.toLong() })
+                        contextsData.relativePeriods.add(RelativePeriod(indexes.toList(), DateTimePeriod(
                             years = amount(TimeTypes.years), months = amount(TimeTypes.nMonth),
                             days = amount(TimeTypes.dates), hours = amount(TimeTypes.hours),
                             minutes = amount(TimeTypes.minutes), seconds = amount(TimeTypes.seconds)
-                        )
+                        )))
                         var notFoundTimeTypes =
                             arrayListOf(
                                 TimeTypes.dates,
@@ -644,7 +644,7 @@ internal class DateCases(private val reference: LocalDateTime) {
                 while (matches.find()) {
                     i++
                     val index = matches.start()
-                    var num = expressionSet.expressions[index].text.toInt() * 7;
+                    var num = checkedPeriodAmount(expressionSet.expressions[index].text.toLong() * 7);
                     var max =
                         expressionSet.expressions[index + matches.group().length - 1].maximum.toInt();
                     var validMode = ValidModes.notCertified;
@@ -2025,7 +2025,7 @@ internal class DateCases(private val reference: LocalDateTime) {
                     var indexes =
                         markIndexes(expressionSet, index, matches.group().length, false, true);
                     var context = processContexts(contextsData, indexes);
-                    contextsData.relativePeriods[context] = DateTimePeriod(minutes = 30)
+                    contextsData.relativePeriods.add(RelativePeriod(indexes.toList(), DateTimePeriod(minutes = 30)))
                     val now = reference;
                     parsedTimes.add(
                         ParsedTime(
@@ -2314,7 +2314,14 @@ internal class ContextsData() {
     var contexts: ArrayList<Context>? = null
 
     var usedContexts: ArrayList<Int>? = null
-    val relativePeriods = mutableMapOf<Int, DateTimePeriod>()
+    val relativePeriods = mutableListOf<RelativePeriod>()
 
 }
 
+
+internal data class RelativePeriod(val indexes: List<Int>, val period: DateTimePeriod)
+
+private fun checkedPeriodAmount(value: Long): Int {
+    if (value !in Int.MIN_VALUE.toLong()..Int.MAX_VALUE.toLong()) throw NumberFormatException("Period amount overflow")
+    return value.toInt()
+}

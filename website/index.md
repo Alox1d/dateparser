@@ -1,6 +1,6 @@
 # DateParser Kotlin
 
-Offline Russian and English natural-language date/time parser for Kotlin Multiplatform.
+Offline English and Russian natural-language date/time parser for Kotlin Multiplatform.
 
 Парсер дат и времени из текста на русском и английском для Kotlin Multiplatform.
 
