@@ -208,7 +208,7 @@ internal class ParseEngine(reference: LocalDateTime) {
                 val expressionsForExtracting = ArrayList<Expression>()
                 for (expr in expressions) {
                     if (expr != null) {
-                        expressionsForExtracting.add(expr.copy())
+                        expressionsForExtracting.add(expr.copy(text = RegexExtractor.parsingText(expr)))
                     };
                 }
                 val casesResult = dateCases.extractTime(expressionsForExtracting, minimumPrevalence);
@@ -272,6 +272,9 @@ internal class ParseEngine(reference: LocalDateTime) {
                         confidence += time.prevalence;
                     }
 
+                    val endIndexes = indexes.toSet()
+                    if (contextsData.relativePeriods.any { period -> period.indexes.all { it in endIndexes } }) continue
+
                     val target_date: TimeList = timeSet.target_date
                     if (target_date.seconds != null) {
                         val time = (target_date.seconds as ParsedTime)
@@ -303,6 +306,9 @@ internal class ParseEngine(reference: LocalDateTime) {
                         indexes.addAll(time.indexes);
                         confidence += time.prevalence;
                     }
+
+                    val targetIndexes = listOf(target_date.seconds, target_date.minutes, target_date.hours, target_date.dates, target_date.months, target_date.years)
+                        .filterIsInstance<ParsedTime>().flatMap { it.indexes }.toSet()
 
                     val period_time: TimeList = timeSet.period_time
                     if (period_time.seconds != null) {
@@ -337,7 +343,7 @@ internal class ParseEngine(reference: LocalDateTime) {
                     }
 
                     val contexts =
-                        ArrayList<Int>();
+                        arrayListOf(timeSet.context);
                     val composedWords = ArrayList<Expression?>();
                     val context = contextsData.contexts!![timeSet.context];
                     val start = context.start;
@@ -370,7 +376,9 @@ internal class ParseEngine(reference: LocalDateTime) {
                         composedWords,
                         confidence,
                         contexts,
-                        contextsData.relativePeriods[timeSet.context]
+                        contextsData.relativePeriods.firstOrNull { period ->
+                            period.indexes.all { it in targetIndexes }
+                        }?.period
                     ));
                 }
                 val notUsedContexts = ArrayList<Int>()

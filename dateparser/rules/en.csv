@@ -58,3 +58,6 @@ days;d;0;0;0;0
 weeks;w;0;0;7;0
 months;K;0;0;0;0
 years;y;0;0;0;0
+
+today;A;0;0;0;0
+yesterday;A;0;-1;0;0

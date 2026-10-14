@@ -13,7 +13,7 @@ for lang, filename in (("en", "README.md"), ("ru", "README.ru.md")):
         elif not re.match(r"https?://|#", url): url = base + url
         return "[" + label + "](" + url + ")"
     text = re.sub(r"\[([^]]+)\]\(([^)]+)\)", link, text)
-    title = "DateParser Kotlin - Russian and English natural language date parser" if lang == "en" else "DateParser Kotlin - парсер дат и времени из текста"
+    title = "DateParser Kotlin - English and Russian natural language date parser" if lang == "en" else "DateParser Kotlin - парсер дат и времени из текста"
     text = "---\n" + "title: " + title + "\n---\n\n" + text
     target = root / "website" / lang / "index.md"
     if "--check" in sys.argv:

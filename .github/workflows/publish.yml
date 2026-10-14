@@ -5,7 +5,7 @@ on:
       version:
         description: New immutable Maven Central version
         required: true
-        default: '0.1.0'
+        default: '0.1.1'
 permissions:
   contents: read
 concurrency:
@@ -46,6 +46,6 @@ jobs:
         run: |
           ./gradlew :dateparser:publishAllPublicationsToTestRepository -PlocalPublication=true -PreleaseVersion="$RELEASE_VERSION"
           python3 scripts/check_publication.py build/test-repository --native --version "$RELEASE_VERSION"
-          ./gradlew -p integration/consumer iosSimulatorArm64Test -PparserVersion="$RELEASE_VERSION"
+          ./gradlew -p integration/consumer jvmTest testAndroidHostTest iosSimulatorArm64Test -PparserVersion="$RELEASE_VERSION"
       - name: Sign, upload and release all KMP variants
         run: ./gradlew :dateparser:publishAndReleaseToMavenCentral -PreleaseVersion="$RELEASE_VERSION" --stacktrace

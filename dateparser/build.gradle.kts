@@ -10,7 +10,7 @@ plugins {
 }
 
 group = "io.github.alox1d"
-version = providers.gradleProperty("releaseVersion").getOrElse("0.1.0")
+version = providers.gradleProperty("releaseVersion").getOrElse("0.1.1")
 
 kotlin {
     explicitApi()
@@ -41,7 +41,7 @@ mavenPublishing {
     }
     pom {
         name.set("DateParser Kotlin")
-        description.set("Offline Russian and English natural-language date/time parser for Kotlin Multiplatform")
+        description.set("Offline English and Russian natural-language date/time parser for Kotlin Multiplatform")
         inceptionYear.set("2020")
         url.set("https://github.com/Alox1d/dateparser-kotlin")
         licenses { license { name.set("MIT License"); url.set("https://opensource.org/license/mit/"); distribution.set("repo") } }
