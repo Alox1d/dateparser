@@ -19,6 +19,8 @@ jobs:
           java-version: '21'
       - uses: gradle/actions/setup-gradle@v4
       - uses: android-actions/setup-android@v3
+        with:
+          packages: 'platform-tools platforms;android-35 build-tools;35.0.0'
       - run: python3 scripts/generate_rules.py --check
       - name: Test JVM, Android and demo
         run: ./gradlew :dateparser:jvmTest :dateparser:testAndroidHostTest :app:assembleDebug --stacktrace
@@ -36,6 +38,8 @@ jobs:
           java-version: '21'
       - uses: gradle/actions/setup-gradle@v4
       - uses: android-actions/setup-android@v3
+        with:
+          packages: 'platform-tools platforms;android-35 build-tools;35.0.0'
       - name: Test iOS simulator and compile device library
         run: ./gradlew :dateparser:iosSimulatorArm64Test :dateparser:compileKotlinIosArm64 --stacktrace
       - name: Publish complete unsigned KMP artifact set
