@@ -4,6 +4,8 @@ title: DateParser Kotlin - English and Russian natural language date parser
 
 # DateParser Kotlin
 
+[![Featured on DevShelf](https://img.shields.io/badge/Featured%20on-DevShelf-7928CA?style=for-the-badge&logo=googlechrome&logoColor=white)](https://devshelf.ritualdev.in/tools/dateparser-kotlin.html)
+
 [English](../en/index.md) | [Russian](../ru/index.md) | [Documentation](https://alox1d.github.io/dateparser-kotlin/)
 
 Offline English and Russian natural-language date/time parser for Kotlin Multiplatform. Extract dates, times, ranges and recurrence periods from reminder text on Android, JVM and iOS, without an account, API key or network service.
