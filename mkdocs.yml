@@ -14,5 +14,6 @@ hooks:
 nav:
   - Home: index.md
   - English: en/index.md
+  - KMP reminder walkthrough: en/kmp-reminder-demo.md
   - Русский: ru/index.md
   - GitHub: https://github.com/Alox1d/dateparser-kotlin

@@ -1,9 +1,11 @@
 {% extends "base.html" %}
 {% block extrahead %}
 {{ super() }}
+{% if page and page.file.src_uri in ["index.md", "en/index.md", "ru/index.md"] %}
 <link rel="alternate" hreflang="en" href="https://alox1d.github.io/dateparser-kotlin/en/">
 <link rel="alternate" hreflang="ru" href="https://alox1d.github.io/dateparser-kotlin/ru/">
 <link rel="alternate" hreflang="x-default" href="https://alox1d.github.io/dateparser-kotlin/">
+{% endif %}
 {% endblock %}
 
 {% block htmltitle %}

@@ -22,6 +22,16 @@ kotlin {
 
 Те же координаты подходят для Kotlin/JVM и Android. Gradle автоматически выбирает артефакт нужной платформы.
 
+## Запускаемый пример KMP
+
+[Демо общего кода](integration/consumer/README.md) и [практическая статья на английском](https://alox1d.github.io/dateparser-kotlin/en/kmp-reminder-demo/) используют опубликованную 0.1.1 из Maven Central. Код предпросмотра напоминания находится в `commonMain`; он проверяется на JVM, Android и iOS.
+
+```sh
+./gradlew -p integration/consumer runDemo -PcentralOnly=true --console=plain
+```
+
+Показаны MDY/DMY, часовые пояса и границы диапазона. Для этого проекта нужны JDK 17-21 и Android SDK 35; запуск и нативные проверки описаны в README демо.
+
 ## Использование
 
 ```kotlin

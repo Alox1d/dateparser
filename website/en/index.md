@@ -26,6 +26,16 @@ kotlin {
 
 The same coordinates work in a Kotlin/JVM or Android project. Gradle selects the platform artifact automatically.
 
+## Runnable KMP demo
+
+[Try the shared reminder demo](https://github.com/Alox1d/dateparser-kotlin/blob/main/integration/consumer/README.md) or follow the [English KMP walkthrough](https://alox1d.github.io/dateparser-kotlin/en/kmp-reminder-demo/). The example resolves **0.1.1 from Maven Central**, keeps the preview in `commonMain`, and checks JVM, Android and iOS consumers.
+
+```sh
+./gradlew -p integration/consumer runDemo -PcentralOnly=true --console=plain
+```
+
+It shows US/European date order, timezones and a reminder range with a fixed reference. You can also provide your own phrase. Building this checked-in example requires JDK 17-21 and Android SDK 35; see the demo README for native checks.
+
 ## Usage
 
 ```kotlin
