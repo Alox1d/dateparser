@@ -4,7 +4,7 @@
 
 Offline Russian and English natural-language date/time parser for Kotlin Multiplatform. Extract dates, times, ranges and recurrence periods from reminder text on Android, JVM and iOS, without an account, API key or network service.
 
-**Release status:** version 0.1.0 is prepared for Maven Central. Publication is pending publisher account/namespace and signing setup. The dependency below becomes available after that release; local installation is usable now.
+**Release status:** the signed 0.1.0 release has been submitted to Maven Central; public availability is being verified. The dependency below becomes available when publication completes; local installation is usable now.
 
 ## Installation
 

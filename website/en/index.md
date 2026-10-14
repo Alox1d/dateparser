@@ -4,11 +4,11 @@ title: DateParser Kotlin - Russian and English natural language date parser
 
 # DateParser Kotlin
 
-[English](../en/index.md) | [Русский](../ru/index.md) | [Documentation](https://alox1d.github.io/dateparser-kotlin/)
+[English](../en/index.md) | [Russian](../ru/index.md) | [Documentation](https://alox1d.github.io/dateparser-kotlin/)
 
 Offline Russian and English natural-language date/time parser for Kotlin Multiplatform. Extract dates, times, ranges and recurrence periods from reminder text on Android, JVM and iOS, without an account, API key or network service.
 
-**Release status:** version 0.1.0 is prepared for Maven Central. Publication is pending publisher account/namespace and signing setup. The dependency below becomes available after that release; local installation is usable now.
+**Release status:** the signed 0.1.0 release has been submitted to Maven Central; public availability is being verified. The dependency below becomes available when publication completes; local installation is usable now.
 
 ## Installation
 
@@ -36,28 +36,26 @@ import kotlinx.datetime.TimeZone
 val parser = DateParser()
 val reference = Instant.parse("2024-02-28T10:15:00Z")
 val matches = parser.parse(
-    text = "купить через 5 часов",
+    text = "buy in 5 hours",
     reference = reference,
     timeZone = TimeZone.UTC
 )
 val instant = matches.single().instant // 2024-02-28T15:15:00Z
 ```
 
-`buy in 5 hours` produces the same instant. No Android `Context` or initialization is required. Passing reference time and timezone makes parsing reproducible. If omitted, the injected `Clock` (system clock by default) is read once and the system timezone is used. Results have second precision except elapsed offsets, which preserve reference subsecond precision.
+The Russian phrase `купить через 5 часов` produces the same instant. No Android `Context` or initialization is required. Passing reference time and timezone makes parsing reproducible. If omitted, the injected `Clock` (system clock by default) is read once and the system timezone is used. Results have second precision except elapsed offsets, which preserve reference subsecond precision.
 
 ## Verified expression examples
 
 These examples use the reference time above and UTC:
 
-| Input | Result |
-| --- | --- |
-| `встреча в 17:30` / `meeting at 17:30` | 2024-02-28 17:30 |
-| `29.02.2024` | 2024-02-29 |
-| `завтра` / `tomorrow` | 2024-02-29 |
-| `через 5 часов` / `in 5 hours` | 2024-02-28 15:15 |
-| `с 17:30 до 20:00` | Start 17:30, end 20:00 |
-| `каждый месяц` / `every month` | Calendar recurrence: 1 month |
-| `каждые 2 дня` / `every 2 days` | Calendar recurrence: 2 days |
+- **Time:** English `meeting at 17:30` or Russian `встреча в 17:30` resolves to February 28, 2024 at 17:30.
+- **Numeric date:** `29.02.2024` resolves to February 29, 2024.
+- **Tomorrow:** English `tomorrow` or Russian `завтра` resolves to February 29, 2024.
+- **Relative time:** English `in 5 hours` or Russian `через 5 часов` resolves to February 28, 2024 at 15:15.
+- **Time range:** Russian `с 17:30 до 20:00` gives a start time of 17:30 and an end time of 20:00.
+- **Monthly recurrence:** English `every month` or Russian `каждый месяц` gives a calendar interval of one month.
+- **Two-day recurrence:** English `every 2 days` or Russian `каждые 2 дня` gives a calendar interval of two days.
 
 ## Result and options
 
@@ -76,20 +74,25 @@ These examples use the reference time above and UTC:
 
 Targets: Android API 26+, JVM (Java 8+), iOS arm64 device and Apple Silicon simulator. Kotlin 2.3.20, kotlinx-datetime 0.8.0, AGP 8.13.2 and Gradle 8.13 are pinned. Building requires JDK 17-21 and Android SDK 35. iOS compilation/tests additionally require full Xcode on macOS; CI uses an arm64 macOS runner.
 
-```sh
-./gradlew :dateparser:jvmTest :dateparser:testAndroidHostTest :app:assembleDebug
-./gradlew :dateparser:iosSimulatorArm64Test :dateparser:compileKotlinIosArm64
-python3 scripts/generate_rules.py --check
-```
+Run the relevant checks from the repository root:
+
+- JVM behavior tests: `./gradlew :dateparser:jvmTest`.
+- Android host tests: `./gradlew :dateparser:testAndroidHostTest`.
+- Android demo build: `./gradlew :app:assembleDebug`.
+- iOS simulator tests: `./gradlew :dateparser:iosSimulatorArm64Test`.
+- iOS device compilation: `./gradlew :dateparser:compileKotlinIosArm64`.
+- Generated rules: `python3 scripts/generate_rules.py --check`.
 
 The same common behavior suite runs on JVM, Android host tests and iOS simulator. This is not Android device instrumentation coverage. Using the library in shared Kotlin iOS code is supported; a standalone Swift/XCFramework distribution is not part of this release.
 
 ## Install locally before Central publication
 
-```sh
-./gradlew :dateparser:publishKotlinMultiplatformPublicationToTestRepository :dateparser:publishJvmPublicationToTestRepository :dateparser:publishAndroidPublicationToTestRepository -PlocalPublication=true
-./gradlew -p integration/consumer jvmTest
-```
+Run these commands from the repository root:
+
+- Root metadata: `./gradlew :dateparser:publishKotlinMultiplatformPublicationToTestRepository -PlocalPublication=true`.
+- JVM artifact: `./gradlew :dateparser:publishJvmPublicationToTestRepository -PlocalPublication=true`.
+- Android artifact: `./gradlew :dateparser:publishAndroidPublicationToTestRepository -PlocalPublication=true`.
+- Consumer verification: `./gradlew -p integration/consumer jvmTest`.
 
 This writes an unsigned test Maven repository to `build/test-repository`. A separate KMP consumer resolves the real root metadata and platform artifacts. For a local iOS consumer, also run `:dateparser:publishAllPublicationsToTestRepository -PlocalPublication=true` on a Mac with Xcode. Do not use the local-publication flag for Central releases. See [publishing instructions](https://github.com/Alox1d/dateparser-kotlin/blob/main/docs/PUBLISHING.md).
 
