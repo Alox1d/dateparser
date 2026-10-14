@@ -4,11 +4,11 @@
 
 Offline Russian and English natural-language date/time parser for Kotlin Multiplatform. Extract dates, times, ranges and recurrence periods from reminder text on Android, JVM and iOS, without an account, API key or network service.
 
-**Release status:** the signed 0.1.0 release has been submitted to Maven Central; public availability is being verified. The dependency below becomes available when publication completes; local installation is usable now.
+**Release status:** [version 0.1.0 is published on Maven Central](https://central.sonatype.com/artifact/io.github.alox1d/dateparser-kotlin/0.1.0).
 
 ## Installation
 
-After the Central release, add `mavenCentral()` and the dependency to your shared module:
+Add `mavenCentral()` and the dependency to your shared module:
 
 ```kotlin
 kotlin {
@@ -81,7 +81,7 @@ Run the relevant checks from the repository root:
 
 The same common behavior suite runs on JVM, Android host tests and iOS simulator. This is not Android device instrumentation coverage. Using the library in shared Kotlin iOS code is supported; a standalone Swift/XCFramework distribution is not part of this release.
 
-## Install locally before Central publication
+## Local development and publication checks
 
 Run these commands from the repository root:
 

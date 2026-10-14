@@ -8,11 +8,11 @@ title: DateParser Kotlin - парсер дат и времени из текст
 
 Парсер дат и времени из текста на русском и английском для Kotlin Multiplatform. Извлекает даты, время, диапазоны и интервалы повторения из напоминаний. Работает локально на Android, JVM и iOS, без аккаунта, API-ключа и сетевого сервиса.
 
-**Статус выпуска:** подписанная версия 0.1.0 отправлена в Maven Central; публичная доступность проверяется. Зависимость ниже станет доступна после завершения публикации; локальное подключение уже работает.
+**Статус выпуска:** [версия 0.1.0 опубликована в Maven Central](https://central.sonatype.com/artifact/io.github.alox1d/dateparser-kotlin/0.1.0).
 
 ## Подключение
 
-После выпуска в Central добавь `mavenCentral()` и зависимость в общий модуль:
+Добавь `mavenCentral()` и зависимость в общий модуль:
 
 ```kotlin
 kotlin {
@@ -84,7 +84,7 @@ python3 scripts/generate_rules.py --check
 
 Один общий набор поведенческих тестов выполняется на JVM, Android host и симуляторе iOS. Тестов на устройстве Android в этом выпуске нет. Подключение в общий Kotlin-код приложения iOS предусмотрено; отдельный выпуск Swift/XCFramework в эту версию не входит.
 
-## Локальное подключение до выпуска в Central
+## Локальная разработка и проверка публикации
 
 ```sh
 ./gradlew :dateparser:publishKotlinMultiplatformPublicationToTestRepository :dateparser:publishJvmPublicationToTestRepository :dateparser:publishAndroidPublicationToTestRepository -PlocalPublication=true
