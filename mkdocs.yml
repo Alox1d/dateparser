@@ -3,6 +3,7 @@ site_url: https://alox1d.github.io/dateparser-kotlin/
 site_description: Offline Russian and English natural-language date parser for Kotlin Multiplatform. Парсер дат и времени из текста на русском и английском.
 repo_url: https://github.com/Alox1d/dateparser-kotlin
 repo_name: Alox1d/dateparser-kotlin
+edit_uri: ""
 docs_dir: website
 site_dir: site
 theme:

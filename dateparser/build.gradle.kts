@@ -1,3 +1,6 @@
+import com.vanniktech.maven.publish.JavadocJar
+import com.vanniktech.maven.publish.KotlinMultiplatform
+import org.gradle.api.publish.maven.MavenPublication
 import org.jetbrains.kotlin.gradle.dsl.JvmTarget
 
 plugins {
@@ -30,6 +33,7 @@ kotlin {
 
 
 mavenPublishing {
+    configure(KotlinMultiplatform(javadocJar = JavadocJar.None()))
     coordinates(group.toString(), "dateparser-kotlin", version.toString())
     publishToMavenCentral()
     if (!providers.gradleProperty("localPublication").map(String::toBoolean).getOrElse(false)) {
@@ -54,8 +58,19 @@ publishing {
     repositories { maven { name = "Test"; url = rootProject.layout.buildDirectory.dir("test-repository").get().asFile.toURI() } }
 }
 
-tasks.withType<Jar>().matching { it.name.contains("javadoc", ignoreCase = true) }.configureEach {
+val documentationJar by tasks.registering(Jar::class) {
+    archiveClassifier.set("javadoc")
     from(rootProject.file("README.md"))
     from(rootProject.file("README.ru.md"))
     from(rootProject.file("THIRD_PARTY_NOTICES.md"))
+    from(rootProject.file("LICENSE"))
+}
+
+publishing.publications.withType<MavenPublication>().configureEach {
+    artifact(documentationJar)
+}
+
+tasks.withType<Jar>().configureEach {
+    from(rootProject.file("LICENSE")) { into("META-INF") }
+    from(rootProject.file("THIRD_PARTY_NOTICES.md")) { into("META-INF") }
 }
