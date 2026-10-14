@@ -4,6 +4,8 @@ title: DateParser Kotlin - парсер дат и времени из текст
 
 # DateParser Kotlin
 
+[![Featured on DevShelf](https://img.shields.io/badge/Featured%20on-DevShelf-7928CA?style=for-the-badge&logo=googlechrome&logoColor=white)](https://devshelf.ritualdev.in/tools/dateparser-kotlin.html)
+
 [English](../en/index.md) | [Русский](../ru/index.md) | [Документация](https://alox1d.github.io/dateparser-kotlin/)
 
 Парсер дат и времени из текста на русском и английском для Kotlin Multiplatform. Извлекает даты, время, диапазоны и интервалы повторения из напоминаний. Работает локально на Android, JVM и iOS, без аккаунта, API-ключа и сетевого сервиса.
