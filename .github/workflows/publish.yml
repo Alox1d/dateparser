@@ -42,5 +42,10 @@ jobs:
       - run: python3 scripts/generate_rules.py --check
       - name: Verify exact release sources
         run: ./gradlew :dateparser:jvmTest :dateparser:testAndroidHostTest :dateparser:iosSimulatorArm64Test :dateparser:compileKotlinIosArm64 :app:assembleDebug -PreleaseVersion="$RELEASE_VERSION" --stacktrace
+      - name: Validate complete publication bundle and native consumer
+        run: |
+          ./gradlew :dateparser:publishAllPublicationsToTestRepository -PlocalPublication=true -PreleaseVersion="$RELEASE_VERSION"
+          python3 scripts/check_publication.py build/test-repository --native --version "$RELEASE_VERSION"
+          ./gradlew -p integration/consumer iosSimulatorArm64Test -PparserVersion="$RELEASE_VERSION"
       - name: Sign, upload and release all KMP variants
         run: ./gradlew :dateparser:publishAndReleaseToMavenCentral -PreleaseVersion="$RELEASE_VERSION" --stacktrace
