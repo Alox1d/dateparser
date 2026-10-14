@@ -39,3 +39,7 @@ obj/
 .idea/
 **/build/
 **/.gradle/
+
+.superpowers/
+.kotlin/
+site/
