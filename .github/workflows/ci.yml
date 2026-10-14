@@ -26,6 +26,7 @@ jobs:
         run: ./gradlew :dateparser:jvmTest :dateparser:testAndroidHostTest :app:assembleDebug --stacktrace
       - name: Publish unsigned local variants
         run: ./gradlew :dateparser:publishKotlinMultiplatformPublicationToTestRepository :dateparser:publishJvmPublicationToTestRepository :dateparser:publishAndroidPublicationToTestRepository -PlocalPublication=true
+      - run: python3 scripts/check_publication.py build/test-repository
       - name: Resolve from separate KMP consumer
         run: ./gradlew -p integration/consumer jvmTest
   apple:
@@ -44,6 +45,7 @@ jobs:
         run: ./gradlew :dateparser:iosSimulatorArm64Test :dateparser:compileKotlinIosArm64 --stacktrace
       - name: Publish complete unsigned KMP artifact set
         run: ./gradlew :dateparser:publishAllPublicationsToTestRepository -PlocalPublication=true --stacktrace
+      - run: python3 scripts/check_publication.py build/test-repository --native
       - name: Consume published iOS variants
         run: ./gradlew -p integration/consumer iosSimulatorArm64Test --stacktrace
       - uses: actions/upload-artifact@v4
