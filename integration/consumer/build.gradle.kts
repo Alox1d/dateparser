@@ -28,3 +28,19 @@ kotlin {
         getByName("androidHostTest").dependencies { implementation(kotlin("test-junit")) }
     }
 }
+
+val demoCompilation = (kotlin.targets.getByName("jvm") as org.jetbrains.kotlin.gradle.targets.jvm.KotlinJvmTarget)
+    .compilations.getByName("main")
+tasks.register<JavaExec>("runDemo") {
+    group = "application"
+    description = "Preview English reminder dates using the published KMP library."
+    dependsOn(demoCompilation.compileTaskProvider)
+    classpath = files(demoCompilation.output.allOutputs, demoCompilation.runtimeDependencyFiles)
+    mainClass.set("io.github.alox1d.dateparser.sample.DemoKt")
+    providers.gradleProperty("demoText").orNull?.let { text ->
+        args(text,
+            providers.gradleProperty("demoDateOrder").getOrElse("NONE"),
+            providers.gradleProperty("demoReference").getOrElse("2026-07-03T10:15:00Z"),
+            providers.gradleProperty("demoTimeZone").getOrElse("UTC"))
+    }
+}
