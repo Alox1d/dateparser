@@ -1,5 +1,13 @@
 # Changelog
 
+## 0.1.2
+
+- Add `the first Monday of next month` for every full English weekday name, with optional `the` and `first`/`1st`. Resolve from the first day of the next calendar month in the reference timezone.
+- Preserve the reference clock and reminder title, with explicit AM/PM support; prevent month names such as May in titles from capturing the generated date.
+- Reject recognized unsupported ordinal and recurring variants of this form instead of returning partial weekday/month matches.
+- Add eight shared regression tests for weekday coverage, month/year boundaries, timezone-local month selection, clocks, titles and existing `next Friday` behavior. Add a published-artifact consumer regression.
+- Update English/Russian documentation, the KMP walkthrough and runnable consumer to 0.1.2. Public API and platform requirements remain unchanged.
+
 ## 0.1.1
 
 - Add English named dates in US and European order, month abbreviations, ordinals and four-digit years; ISO and slash dates with explicit `DateOrder` for ambiguous inputs.

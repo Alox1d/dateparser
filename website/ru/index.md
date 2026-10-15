@@ -13,7 +13,7 @@ title: DateParser Kotlin - парсер дат и времени из текст
 
 Парсер дат и времени из текста на русском и английском для Kotlin Multiplatform. Извлекает даты, время, диапазоны и интервалы повторения из напоминаний. Работает локально на Android, JVM и iOS, без аккаунта, API-ключа и сетевого сервиса.
 
-**Версия:** 0.1.1 | [Maven Central](https://central.sonatype.com/artifact/io.github.alox1d/dateparser-kotlin/0.1.1) | [Изменения](https://github.com/Alox1d/dateparser-kotlin/blob/main/CHANGELOG.md).
+**Версия:** 0.1.2 | [Maven Central](https://central.sonatype.com/artifact/io.github.alox1d/dateparser-kotlin/0.1.2) | [Изменения](https://github.com/Alox1d/dateparser-kotlin/blob/main/CHANGELOG.md).
 
 ## Подключение
 
@@ -23,7 +23,7 @@ title: DateParser Kotlin - парсер дат и времени из текст
 kotlin {
     sourceSets {
         commonMain.dependencies {
-            implementation("io.github.alox1d:dateparser-kotlin:0.1.1")
+            implementation("io.github.alox1d:dateparser-kotlin:0.1.2")
         }
     }
 }
@@ -33,7 +33,7 @@ kotlin {
 
 ## Запускаемый пример KMP
 
-[Демо общего кода](https://github.com/Alox1d/dateparser-kotlin/blob/main/integration/consumer/README.md) и [практическая статья на английском](https://alox1d.github.io/dateparser-kotlin/en/kmp-reminder-demo/) используют опубликованную 0.1.1 из Maven Central. Код предпросмотра напоминания находится в `commonMain`; он проверяется на JVM, Android и iOS.
+[Демо общего кода](https://github.com/Alox1d/dateparser-kotlin/blob/main/integration/consumer/README.md) и [практическая статья на английском](https://alox1d.github.io/dateparser-kotlin/en/kmp-reminder-demo/) используют опубликованную 0.1.2 из Maven Central. Код предпросмотра напоминания находится в `commonMain`; он проверяется на JVM, Android и iOS.
 
 ```sh
 ./gradlew -p integration/consumer runDemo -PcentralOnly=true --console=plain
@@ -60,11 +60,11 @@ val instant = matches.single().instant // 2024-02-28T15:15:00Z
 
 `buy in 5 hours` даёт тот же результат. Android `Context` и предварительная инициализация не нужны. Явные время отсчёта и часовой пояс обеспечивают воспроизводимость. Если их не указать, внедрённый `Clock` (по умолчанию системный) читается один раз, используется системный часовой пояс. Точность результата - секунды; смещения в часах, минутах и секундах сохраняют долю секунды исходного времени.
 
-## Дополнение в исходниках после 0.1.1: первый день недели следующего месяца
+## Новое в 0.1.2: первый день недели следующего месяца
 
-`next Friday` уже поддерживается опубликованной версией 0.1.1: это ближайшая пятница, причём текущая пятница пропускается.
+`next Friday` поддерживается начиная с 0.1.1: это ближайшая пятница, причём текущая пятница пропускается.
 
-В текущие исходники дополнительно добавлена форма `the first Monday of next month` для любого полного английского названия дня недели. `the` необязательно, допускаются `first` и `1st`, регистр не важен. **В опубликованный артефакт Maven Central 0.1.1 это дополнение не входит.**
+Версия 0.1.2 дополнительно распознаёт `the first Monday of next month` для любого полного английского названия дня недели. `the` необязательно, допускаются `first` и `1st`, регистр не важен.
 
 Расчёт начинается с первого числа следующего календарного месяца в заданном часовом поясе. При reference `2024-02-28T10:15:00Z` и UTC фраза `Pay rent on the first Monday of next month` даёт `2024-03-04T10:15:00Z` и оставляет название `Pay rent`. Явное `at 5PM` задаёт `17:00:00`; без времени сохраняются часы reference.
 

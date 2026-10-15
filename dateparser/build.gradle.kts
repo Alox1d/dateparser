@@ -10,7 +10,7 @@ plugins {
 }
 
 group = "io.github.alox1d"
-version = providers.gradleProperty("releaseVersion").getOrElse("0.1.1")
+version = providers.gradleProperty("releaseVersion").getOrElse("0.1.2")
 
 kotlin {
     explicitApi()

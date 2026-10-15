@@ -4,7 +4,7 @@ from pathlib import Path
 import argparse, json, zipfile, xml.etree.ElementTree as ET
 parser = argparse.ArgumentParser()
 parser.add_argument("repository", type=Path)
-parser.add_argument("--version", default="0.1.1")
+parser.add_argument("--version", default="0.1.2")
 parser.add_argument("--native", action="store_true")
 args = parser.parse_args()
 root = args.repository / "io/github/alox1d"

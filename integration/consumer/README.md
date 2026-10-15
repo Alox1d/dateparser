@@ -1,6 +1,6 @@
 # Published KMP reminder demo
 
-This standalone Kotlin Multiplatform consumer uses **DateParser Kotlin 0.1.1 from Maven Central**. Its reminder preview lives in `src/commonMain`; the same code compiles for JVM, Android API 26+, and iOS arm64/device and simulator. A small JVM entry point prints the results without requiring an emulator.
+This standalone Kotlin Multiplatform consumer uses **DateParser Kotlin 0.1.2 from Maven Central**. Its reminder preview lives in `src/commonMain`; the same code compiles for JVM, Android API 26+, and iOS arm64/device and simulator. A small JVM entry point prints the results without requiring an emulator.
 
 From the repository root:
 

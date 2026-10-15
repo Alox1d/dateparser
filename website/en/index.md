@@ -13,7 +13,7 @@ title: DateParser Kotlin - English and Russian natural language date parser
 
 Offline English and Russian natural-language date/time parser for Kotlin Multiplatform. Extract dates, times, ranges and recurrence periods from reminder text on Android, JVM and iOS, without an account, API key or network service.
 
-**Version:** 0.1.1 | [Maven Central](https://central.sonatype.com/artifact/io.github.alox1d/dateparser-kotlin/0.1.1) | [Release notes](https://github.com/Alox1d/dateparser-kotlin/blob/main/CHANGELOG.md).
+**Version:** 0.1.2 | [Maven Central](https://central.sonatype.com/artifact/io.github.alox1d/dateparser-kotlin/0.1.2) | [Release notes](https://github.com/Alox1d/dateparser-kotlin/blob/main/CHANGELOG.md).
 
 ## Installation
 
@@ -23,7 +23,7 @@ Add `mavenCentral()` and the dependency to your shared module:
 kotlin {
     sourceSets {
         commonMain.dependencies {
-            implementation("io.github.alox1d:dateparser-kotlin:0.1.1")
+            implementation("io.github.alox1d:dateparser-kotlin:0.1.2")
         }
     }
 }
@@ -33,7 +33,7 @@ The same coordinates work in a Kotlin/JVM or Android project. Gradle selects the
 
 ## Runnable KMP demo
 
-[Try the shared reminder demo](https://github.com/Alox1d/dateparser-kotlin/blob/main/integration/consumer/README.md) or follow the [English KMP walkthrough](https://alox1d.github.io/dateparser-kotlin/en/kmp-reminder-demo/). The example resolves **0.1.1 from Maven Central**, keeps the preview in `commonMain`, and checks JVM, Android and iOS consumers.
+[Try the shared reminder demo](https://github.com/Alox1d/dateparser-kotlin/blob/main/integration/consumer/README.md) or follow the [English KMP walkthrough](https://alox1d.github.io/dateparser-kotlin/en/kmp-reminder-demo/). The example resolves **0.1.2 from Maven Central**, keeps the preview in `commonMain`, and checks JVM, Android and iOS consumers.
 
 ```sh
 ./gradlew -p integration/consumer runDemo -PcentralOnly=true --console=plain
@@ -60,11 +60,11 @@ val instant = matches.single().instant // 2024-02-28T15:15:00Z
 
 The Russian phrase `купить через 5 часов` produces the same instant. No Android `Context` or initialization is required. Passing reference time and timezone makes parsing reproducible. If omitted, the injected `Clock` (system clock by default) is read once and the system timezone is used. Results have second precision except elapsed offsets, which preserve reference subsecond precision.
 
-## Source addition after 0.1.1: first weekday of next month
+## New in 0.1.2: first weekday of next month
 
-`next Friday` already works in the published 0.1.1 release: it means the nearest Friday, skipping today when the reference is Friday.
+`next Friday` has been supported since 0.1.1: it means the nearest Friday, skipping today when the reference is Friday.
 
-The current source additionally recognizes `the first Monday of next month` and the corresponding form for any full weekday name (optional `the`; `first` or `1st`; case-insensitive). This addition is **not included in the published Maven Central 0.1.1 artifact**.
+Version 0.1.2 additionally recognizes `the first Monday of next month` and the corresponding form for any full weekday name (optional `the`; `first` or `1st`; case-insensitive).
 
 The rule starts at day 1 of the next calendar month in the supplied timezone and selects the first requested weekday. For `2024-02-28T10:15:00Z` in UTC, `Pay rent on the first Monday of next month` resolves to `2024-03-04T10:15:00Z` with title `Pay rent`. An explicit `at 5PM` uses `17:00:00`; otherwise the reference clock is retained.
 

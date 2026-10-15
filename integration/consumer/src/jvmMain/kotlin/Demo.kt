@@ -7,7 +7,7 @@ import kotlinx.datetime.toLocalDateTime
 
 fun main(args: Array<String>) {
     val reference = Instant.parse(args.getOrNull(2) ?: "2026-07-03T10:15:00Z")
-    println("DateParser Kotlin 0.1.1 | published KMP consumer")
+    println("DateParser Kotlin 0.1.2 | published KMP consumer")
     println("Reference: $reference")
     if (args.isNotEmpty()) {
         val order = args.getOrNull(1)?.takeUnless { it == "NONE" }?.let(DateOrder::valueOf)

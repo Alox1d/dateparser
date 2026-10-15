@@ -23,7 +23,7 @@ kotlin {
     iosArm64()
     iosSimulatorArm64()
     sourceSets {
-        commonMain.dependencies { implementation("io.github.alox1d:dateparser-kotlin:${providers.gradleProperty("parserVersion").getOrElse("0.1.1")}") }
+        commonMain.dependencies { implementation("io.github.alox1d:dateparser-kotlin:${providers.gradleProperty("parserVersion").getOrElse("0.1.2")}") }
         commonTest.dependencies { implementation(kotlin("test")) }
         getByName("androidHostTest").dependencies { implementation(kotlin("test-junit")) }
     }

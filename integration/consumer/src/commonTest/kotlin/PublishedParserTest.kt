@@ -21,6 +21,14 @@ class PublishedParserTest {
             assertEquals("Meet", match.remainingText)
         }
     }
+    @Test fun firstWeekdayOfNextMonthFromPublishedArtifacts() {
+        val timed = parse("Pay rent on the first Monday of next month at 5PM").single()
+        assertEquals(LocalDateTime(2024, 3, 4, 17, 0), timed.targetDate)
+        assertEquals("Pay rent", timed.remainingText)
+        val named = parse("Call May 1st Monday of next month").single()
+        assertEquals(LocalDateTime(2024, 3, 4, 10, 15), named.targetDate)
+        assertEquals("Call May", named.remainingText)
+    }
     @Test fun explicitUsAndEuropeanNumericOrder() {
         assertTrue(parse("03/04/2026").isEmpty())
         assertEquals(LocalDate(2026, 3, 4), parser.parse("03/04/2026", DateOrder.MDY, reference, TimeZone.UTC).single().targetDate.date)
