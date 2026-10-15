@@ -60,6 +60,16 @@ val instant = matches.single().instant // 2024-02-28T15:15:00Z
 
 The Russian phrase `купить через 5 часов` produces the same instant. No Android `Context` or initialization is required. Passing reference time and timezone makes parsing reproducible. If omitted, the injected `Clock` (system clock by default) is read once and the system timezone is used. Results have second precision except elapsed offsets, which preserve reference subsecond precision.
 
+## Source addition after 0.1.1: first weekday of next month
+
+`next Friday` already works in the published 0.1.1 release: it means the nearest Friday, skipping today when the reference is Friday.
+
+The current source additionally recognizes `the first Monday of next month` and the corresponding form for any full weekday name (optional `the`; `first` or `1st`; case-insensitive). This addition is **not included in the published Maven Central 0.1.1 artifact**.
+
+The rule starts at day 1 of the next calendar month in the supplied timezone and selects the first requested weekday. For `2024-02-28T10:15:00Z` in UTC, `Pay rent on the first Monday of next month` resolves to `2024-03-04T10:15:00Z` with title `Pay rent`. An explicit `at 5PM` uses `17:00:00`; otherwise the reference clock is retained.
+
+This is a one-off date, not an ordinal recurrence rule. The recognized unsupported forms (`second` through `fifth`, `last`, and numeric ordinals other than `1st`) and `every/each first ... of next month` are rejected rather than reduced to a partial weekday/month match. Other English ordinal wording is outside this addition. New grammar is added as explicit, documented rules with regression tests; arbitrary context-dependent prose is not inferred.
+
 ## English dates for the US and Europe
 
 Named dates work in either order, with full or abbreviated months and optional ordinals. These examples use the reference time above and UTC:
