@@ -56,6 +56,19 @@ class FirstWeekdayNextMonthTest {
         assertEquals(Instant.parse("2026-03-03T00:30:00Z"), local.instant)
     }
 
+    @Test fun monthNamesInReminderTitlesDoNotCaptureTheGeneratedDay() {
+        for (name in listOf("May", "June", "April")) {
+            for (article in listOf("the ", "")) {
+                for (ordinal in listOf("first", "1st")) {
+                    val text = "Call $name $article$ordinal Monday of next month"
+                    val result = one(text)
+                    assertEquals(LocalDateTime(2024, 3, 4, 10, 15, 21), result.targetDate, text)
+                    assertEquals("Call $name", result.remainingText, text)
+                }
+            }
+        }
+    }
+
     @Test fun unsupportedOrdinalsAndRecurringFormsDoNotFallBackToPartialDates() {
         for (text in listOf("the second Monday of next month", "the fifth Monday of next month at 5PM",
             "the last Friday of next month", "every first Monday of next month", "each first Monday of next month")) {

@@ -64,7 +64,7 @@ The current source additionally recognizes `the first Monday of next month` and 
 
 The rule starts at day 1 of the next calendar month in the supplied timezone and selects the first requested weekday. For `2024-02-28T10:15:00Z` in UTC, `Pay rent on the first Monday of next month` resolves to `2024-03-04T10:15:00Z` with title `Pay rent`. An explicit `at 5PM` uses `17:00:00`; otherwise the reference clock is retained.
 
-This is a one-off date, not an ordinal recurrence rule. Other ordinal forms (`second`, `last`, etc.) and `every/each first ... of next month` are rejected rather than reduced to a partial weekday/month match. New grammar is added as explicit, documented rules with regression tests; arbitrary context-dependent prose is not inferred.
+This is a one-off date, not an ordinal recurrence rule. The recognized unsupported forms (`second` through `fifth`, `last`, and numeric ordinals other than `1st`) and `every/each first ... of next month` are rejected rather than reduced to a partial weekday/month match. Other English ordinal wording is outside this addition. New grammar is added as explicit, documented rules with regression tests; arbitrary context-dependent prose is not inferred.
 
 ## English dates for the US and Europe
 

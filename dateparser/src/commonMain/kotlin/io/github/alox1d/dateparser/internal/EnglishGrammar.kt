@@ -84,7 +84,14 @@ internal object EnglishGrammar {
             if (Regex("[+-]?\\d+").findAll(candidate.value).any { (it.value.toIntOrNull() ?: 0) <= 0 }) return REJECTED
         }
         if (rejected) return REJECTED
-        var result = firstWeekdayNextMonth.replace(text) { m ->
+        var result = dayFirst.replace(text) { m -> date(m.groupValues[2], month(m.groupValues[4]), m.groupValues[5], m.groupValues[3], m.groupValues[1]) }
+        // A title such as "Call May 1st Monday ..." must not turn "May 1st" into a named date.
+        val ordinalRanges = firstWeekdayNextMonth.findAll(result).map { it.range }.toList()
+        result = monthFirst.replace(result) { m ->
+            if (ordinalRanges.any { it.first <= m.range.last && m.range.first <= it.last }) m.value
+            else date(m.groupValues[3], month(m.groupValues[2]), m.groupValues[5], m.groupValues[4], m.groupValues[1])
+        }
+        result = firstWeekdayNextMonth.replace(result) { m ->
             val monthStart = runCatching {
                 LocalDate(referenceDate.year, referenceDate.month.number, 1).plus(1, DateTimeUnit.MONTH)
             }.getOrNull()
@@ -99,8 +106,6 @@ internal object EnglishGrammar {
             }
         }
         if (rejected) return REJECTED
-        result = dayFirst.replace(result) { m -> date(m.groupValues[2], month(m.groupValues[4]), m.groupValues[5], m.groupValues[3], m.groupValues[1]) }
-        result = monthFirst.replace(result) { m -> date(m.groupValues[3], month(m.groupValues[2]), m.groupValues[5], m.groupValues[4], m.groupValues[1]) }
         result = isoDate.replace(result) { m -> date(m.groupValues[3], m.groupValues[2].toInt(), m.groupValues[1]) }
         result = slashDate.replace(result) { m ->
             val first = m.groupValues[1].toInt()
