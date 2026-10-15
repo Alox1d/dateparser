@@ -3,6 +3,9 @@ package io.github.alox1d.dateparser.internal
 import io.github.alox1d.dateparser.DateOrder
 import kotlinx.datetime.LocalDate
 import kotlinx.datetime.DayOfWeek
+import kotlinx.datetime.DateTimeUnit
+import kotlinx.datetime.plus
+import kotlinx.datetime.number
 
 /** Translate recognized English forms into the shared rule grammar, retaining surrounding text. */
 internal object EnglishGrammar {
@@ -29,11 +32,16 @@ internal object EnglishGrammar {
     private val nextPeriod = Regex("\\bnext\\s+(week|month|year)s?\\b", ignoreCase)
     private val dottedDate = Regex("$start(?<!\\d\\.)([+-]?\\d{1,2})\\.(\\d{2})\\.(\\d{1,4})(?!\\.\\d)$end")
     private val weekday = Regex("\\b(?:(on|next|every)\\s+)?(monday|tuesday|wednesday|thursday|friday|saturday|sunday)\\b", ignoreCase)
+    private val firstWeekdayNextMonth = Regex(
+        "$start(?:(every|each)\\s+)?(?:the\\s+)?(first|second|third|fourth|fifth|last|\\d+(?:st|nd|rd|th))\\s+($weekdayNames)\\s+of\\s+next\\s+month$end",
+        ignoreCase
+    )
     private val unit = "(?:years?|months?|weeks?|days?|hours?|minutes?|seconds?)"
     private val compound = Regex("\\b(?:in|after|every)\\s+[+-]?\\d+\\s+$unit(?:\\s+and\\s+[+-]?\\d+\\s+$unit)+\\b", ignoreCase)
     private val conjunction = Regex("\\s+and\\s+", ignoreCase)
 
-    fun normalize(text: String, dateOrder: DateOrder?, referenceYear: Int = 2000): String {
+    fun normalize(text: String, dateOrder: DateOrder?, referenceDate: LocalDate = LocalDate(2000, 1, 1)): String {
+        val referenceYear = referenceDate.year
         var rejected = false
         fun date(dayText: String, month: Int, yearText: String = "", ordinal: String = "", namedWeekday: String = ""): String {
             val day = dayText.toIntOrNull()
@@ -77,7 +85,27 @@ internal object EnglishGrammar {
         }
         if (rejected) return REJECTED
         var result = dayFirst.replace(text) { m -> date(m.groupValues[2], month(m.groupValues[4]), m.groupValues[5], m.groupValues[3], m.groupValues[1]) }
-        result = monthFirst.replace(result) { m -> date(m.groupValues[3], month(m.groupValues[2]), m.groupValues[5], m.groupValues[4], m.groupValues[1]) }
+        // A title such as "Call May 1st Monday ..." must not turn "May 1st" into a named date.
+        val ordinalRanges = firstWeekdayNextMonth.findAll(result).map { it.range }.toList()
+        result = monthFirst.replace(result) { m ->
+            if (ordinalRanges.any { it.first <= m.range.last && m.range.first <= it.last }) m.value
+            else date(m.groupValues[3], month(m.groupValues[2]), m.groupValues[5], m.groupValues[4], m.groupValues[1])
+        }
+        result = firstWeekdayNextMonth.replace(result) { m ->
+            val monthStart = runCatching {
+                LocalDate(referenceDate.year, referenceDate.month.number, 1).plus(1, DateTimeUnit.MONTH)
+            }.getOrNull()
+            if (m.groupValues[1].isNotEmpty() || m.groupValues[2].lowercase() !in listOf("first", "1st") || monthStart == null) {
+                rejected = true
+                REJECTED
+            } else {
+                val dayOfWeek = DayOfWeek.valueOf(m.groupValues[3].uppercase())
+                val offset = (dayOfWeek.ordinal - monthStart.dayOfWeek.ordinal + 7) % 7
+                val resolved = monthStart.plus(offset, DateTimeUnit.DAY)
+                date(resolved.day.toString(), resolved.month.number, resolved.year.toString())
+            }
+        }
+        if (rejected) return REJECTED
         result = isoDate.replace(result) { m -> date(m.groupValues[3], m.groupValues[2].toInt(), m.groupValues[1]) }
         result = slashDate.replace(result) { m ->
             val first = m.groupValues[1].toInt()
