@@ -8,7 +8,7 @@ import kotlinx.datetime.*
 class EnglishGrammarTest {
     private val reference = Instant.parse("2024-02-28T10:15:21Z")
     private fun parse(text: String, order: DateOrder? = null) =
-        DateParser().parse(EnglishGrammar.normalize(text, order, reference.toLocalDateTime(TimeZone.UTC).year), reference, TimeZone.UTC)
+        DateParser().parse(EnglishGrammar.normalize(text, order, reference.toLocalDateTime(TimeZone.UTC).date), reference, TimeZone.UTC)
 
     @Test fun namedDatesUseNaturalYearAndBothOrders() {
         for (text in listOf("31 December 2026", "December 31, 2026", "Dec. 31st,2026", "31st Dec 2026", "December 31,2026")) {
@@ -83,7 +83,7 @@ class EnglishGrammarTest {
         for (text in listOf("March 1000 2026 at 5pm", "March1000 2026 at5pm", "-12 March 2026", "-12March2026 at 5pm", "+12 March 2026 at 5pm", "1000 March 2026 at 5pm")) assertTrue(parse(text).isEmpty(),text)
         val nonLeap=Instant.parse("2025-02-28T10:15:21Z")
         for (text in listOf("February 29 at 5pm", "29 Feb at 5pm")) {
-            assertTrue(DateParser().parse(EnglishGrammar.normalize(text,null,2025),nonLeap,TimeZone.UTC).isEmpty(),text)
+            assertTrue(DateParser().parse(EnglishGrammar.normalize(text,null,LocalDate(2025,2,28)),nonLeap,TimeZone.UTC).isEmpty(),text)
         }
     }
     @Test fun nonpositiveCompoundComponentsRejectWholeExpression() {

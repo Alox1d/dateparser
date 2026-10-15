@@ -52,7 +52,7 @@ public class DateParser(private val clock: Clock = Clock.System) {
     ): List<DateMatch> {
         if (text.isBlank()) return emptyList()
         val localReference = reference.toLocalDateTime(timeZone)
-        val normalized = EnglishGrammar.normalize(text, dateOrder, localReference.year)
+        val normalized = EnglishGrammar.normalize(text, dateOrder, localReference.date)
         if (normalized == EnglishGrammar.REJECTED) return emptyList()
         val fields = try {
             ParseEngine(localReference).parseDate(normalized, options.errorLimit, options.minimumPrevalence)
