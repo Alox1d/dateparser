@@ -149,6 +149,27 @@ Relative hours/minutes/seconds are elapsed time; relative days/months/years use 
 
 A range end with no date inherits the start's calendar date. An earlier end clock rolls to the next day; inverted explicit dates return no match. Relative offsets used as range ends are currently rejected. Explicit DST gaps/overlaps follow kotlinx-datetime resolution rules, and both local boundaries reflect the resolved instants. A recognized invalid date/AMPM clock, an unresolved ambiguous slash date or a numeric overflow rejects the entire input, avoiding an unrelated partial match. `remainingText` preserves reminder words and case, but is not a byte-for-byte reconstruction or a source span.
 
+
+## Android Compose reminder demo
+
+The checked-in `app` module contains an interactive Compose reminder prototype. Run `./gradlew :app:installDebug` with an Android device or emulator, then open **DateParser**. Enter `Buy milk tomorrow at 7pm`, preview the extracted title and date, correct either field using the title editor/date/time pickers, and explicitly add the reminder to a session-only list. No notifications, account, or database are involved.
+
+For ambiguous wording such as `Remind me tomorow at 7`, the library rejects the unresolved time instead of quietly scheduling at the reference hour. Supply `7am`, `7pm`, or `19:00`, or select a date and time manually in the demo. A date-only expression such as `tomorrow` still inherits the reference time by design. The preview is always for review; a rule score is not a probability.
+
+### How a phrase becomes an instant
+
+The caller fixes a reference instant and timezone. With `2026-10-15T10:15:00Z` and `TimeZone.UTC`, `tomorrow at 5 pm` means the following calendar date at 17:00 UTC: `2026-10-16T17:00:00Z`. In a different timezone the same local phrase may represent a different instant; daylight-saving gaps and overlaps use kotlinx-datetime's resolution policy. The parser does not guess the user's geographic timezone.
+
+```kotlin
+val reference = Instant.parse("2026-10-15T10:15:00Z")
+val match = DateParser().parse("tomorrow at 5 pm", reference, TimeZone.UTC).single()
+check(match.instant == Instant.parse("2026-10-16T17:00:00Z"))
+val us = DateParser().parse("03/04/2026", DateOrder.MDY, reference, TimeZone.UTC)
+val europe = DateParser().parse("03/04/2026", DateOrder.DMY, reference, TimeZone.UTC)
+```
+
+The slash date denotes March 4 with `MDY` and April 3 with `DMY`. Without a selected order, ambiguous slash dates return no match. Never store a reminder without reviewing a partial or ambiguous parse.
+
 ## License and origin
 
 MIT. Port and adaptation of [Alexey Orazov's date-parser](https://github.com/alordash/date-parser), originally integrated into WordNote by Alexander Baranov. Original copyright and permission text are preserved in [LICENSE](LICENSE); attribution and the verified upstream commit are in [THIRD_PARTY_NOTICES.md](THIRD_PARTY_NOTICES.md). Historical Android sources/tests are retained under `legacy/android` for comparison and are not built or published.

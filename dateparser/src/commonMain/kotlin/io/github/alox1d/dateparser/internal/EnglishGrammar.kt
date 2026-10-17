@@ -41,6 +41,11 @@ internal object EnglishGrammar {
     private val conjunction = Regex("\\s+and\\s+", ignoreCase)
 
     fun normalize(text: String, dateOrder: DateOrder?, referenceDate: LocalDate = LocalDate(2000, 1, 1)): String {
+        // Reject an unresolved bare hour alongside a calendar expression. Returning tomorrow
+        // at the reference clock instead would silently schedule the wrong reminder.
+        val ambiguousHour = Regex("\\b(?:at)\\s+(?:[01]?\\d|2[0-3])\\b(?!\\s*(?:[:.]|[ap]\\.?m\\.?))", ignoreCase)
+        val calendarExpression = Regex("\\b(?:today|tomorrow|tomorow|yesterday|monday|tuesday|wednesday|thursday|friday|saturday|sunday)\\b", ignoreCase)
+        if (ambiguousHour.containsMatchIn(text) && calendarExpression.containsMatchIn(text)) return REJECTED
         val referenceYear = referenceDate.year
         var rejected = false
         fun date(dayText: String, month: Int, yearText: String = "", ordinal: String = "", namedWeekday: String = ""): String {
