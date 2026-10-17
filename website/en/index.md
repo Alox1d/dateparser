@@ -160,7 +160,7 @@ A range end with no date inherits the start's calendar date. An earlier end cloc
 
 The checked-in `app` module contains an interactive Compose reminder prototype. Run `./gradlew :app:installDebug` with an Android device or emulator, then open **DateParser**. Enter `Buy milk tomorrow at 7pm`, preview the extracted title and date, correct either field using the title editor/date/time pickers, and explicitly add the reminder to a session-only list. No notifications, account, or database are involved.
 
-For ambiguous wording such as `Remind me tomorow at 7`, the library rejects the unresolved time instead of quietly scheduling at the reference hour. Supply `7am`, `7pm`, or `19:00`, or select a date and time manually in the demo. A date-only expression such as `tomorrow` still inherits the reference time by design. The preview is always for review; a rule score is not a probability.
+For ambiguous wording such as `Remind me tomorow at 7`, `Buy milk tomorrow 7, please`, or an invalid bare hour such as `tomorrow at 25`, the library rejects the unresolved time instead of quietly scheduling at the reference hour. Supply `7am`, `7pm`, or `19:00`, or select a date and time manually in the demo. A date-only expression such as `tomorrow` still inherits the reference time by design. The preview is always for review; a rule score is not a probability.
 
 **Actual screenshots from an isolated Android API 35 emulator**, using the checked-in Compose demo:
 

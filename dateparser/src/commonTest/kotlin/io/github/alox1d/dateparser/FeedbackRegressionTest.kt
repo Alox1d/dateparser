@@ -32,6 +32,15 @@ class FeedbackRegressionTest {
             parser.parse("Buy milk tomorrow at 7 pm", reference, TimeZone.UTC).single().instant)
     }
 
+    @Test fun invalidOrTrailingBareHoursMustNotFallBackToReferenceClock() {
+        for (input in listOf(
+            "Buy milk tomorrow at 25", "Buy milk tomorrow 25",
+            "Buy milk tomorrow 7, please", "🛒 Buy milk tomorrow 7 🥛"
+        )) {
+            assertTrue(parser.parse(input, reference, TimeZone.UTC).isEmpty(), input)
+        }
+    }
+
     @Test fun invalidLeapDayCannotBecomeValidPartialMatch() {
         assertTrue(parser.parse("Pay on February 30, 2026 at 5pm", reference, TimeZone.UTC).isEmpty())
     }
