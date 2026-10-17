@@ -42,6 +42,24 @@ class ReminderDraftTest {
         }
     }
 
+    @Test fun preservesMixedLanguageAndEmojiTitlesWithExplicitTimes() {
+        val reference = Instant.parse("2026-10-15T10:15:00Z")
+        val mixed = assertNotNull(parseReminderDraft(
+            "Buy milk — с твоим любимым вкусом — tomorrow at 7pm", reference, TimeZone.UTC
+        ))
+        assertEquals(Instant.parse("2026-10-16T19:00:00Z"), mixed.startsAt)
+        assertEquals("Buy milk — с твоим любимым вкусом", mixed.title)
+        val emoji = assertNotNull(parseReminderDraft("🛒 Buy milk tomorrow at 7pm 🥛", reference, TimeZone.UTC))
+        assertEquals(Instant.parse("2026-10-16T19:00:00Z"), emoji.startsAt)
+        assertEquals("🛒 Buy milk 🥛", emoji.title)
+    }
+
+    @Test fun aDateOnlyPhraseDoesNotBecomeItsOwnTitle() {
+        val draft = assertNotNull(parseReminderDraft("tomorrow", reference, TimeZone.UTC))
+        assertEquals("", draft.title)
+        assertEquals(Instant.parse("2026-07-04T10:15:00Z"), draft.startsAt)
+    }
+
     @Test fun doesNotSilentlyTurnRecurrenceIntoASingleReminder() {
         assertNull(parseReminderDraft("every 2 days", reference, TimeZone.UTC))
     }

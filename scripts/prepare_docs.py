@@ -10,6 +10,9 @@ for lang, filename in (("en", "README.md"), ("ru", "README.ru.md")):
         label, url = match.group(1), match.group(2)
         if url == "README.md": url = "../en/index.md"
         elif url == "README.ru.md": url = "../ru/index.md"
+        elif url.startswith("website/assets/"):
+            # A README path is repository-relative; a localized MkDocs path is not.
+            url = "../assets/" + url.removeprefix("website/assets/")
         elif not re.match(r"https?://|#", url): url = base + url
         return "[" + label + "](" + url + ")"
     text = re.sub(r"\[([^]]+)\]\(([^)]+)\)", link, text)

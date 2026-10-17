@@ -130,6 +130,8 @@ Run the relevant checks from the repository root:
 
 The same common behavior suite runs on JVM, Android host tests and iOS simulator. This is not Android device instrumentation coverage. Using the library in shared Kotlin iOS code is supported; a standalone Swift/XCFramework distribution is not part of this release.
 
+**Android API 24:** the published AAR declares `minSdk 26`, so Android 24 consumers cannot use it as-is. kotlinx-datetime uses `java.time` on Android; older API levels require [core library desugaring](https://developer.android.com/studio/write/java8-support) enabled by the consuming app. An isolated build with `minSdk 24` and `coreLibraryDesugaring` (`desugar_jdk_libs:2.1.5`) passed APK compilation, JVM/Android host tests, local KMP publication metadata checks, and a separate Gradle consumer. This verifies **build compatibility only**: no API 24 runtime image was available to test actual date parsing on a device. The supported minimum therefore remains 26.
+
 ## Local development and publication checks
 
 Run these commands from the repository root:
@@ -152,6 +154,35 @@ This is a rule-based parser with verified English and Russian forms; arbitrary p
 Relative hours/minutes/seconds are elapsed time; relative days/months/years use calendar arithmetic in the selected timezone, including month-end clamping. `next week/month/year` means a one-unit calendar offset from the reference. Recurrence must be positive and describes an interval, rather than a complete schedule.
 
 A range end with no date inherits the start's calendar date. An earlier end clock rolls to the next day; inverted explicit dates return no match. Relative offsets used as range ends are currently rejected. Explicit DST gaps/overlaps follow kotlinx-datetime resolution rules, and both local boundaries reflect the resolved instants. A recognized invalid date/AMPM clock, an unresolved ambiguous slash date or a numeric overflow rejects the entire input, avoiding an unrelated partial match. `remainingText` preserves reminder words and case, but is not a byte-for-byte reconstruction or a source span.
+
+
+## Android Compose reminder demo
+
+The checked-in `app` module contains an interactive Compose reminder prototype. Run `./gradlew :app:installDebug` with an Android device or emulator, then open **DateParser**. Enter `Buy milk tomorrow at 7pm`, preview the extracted title and date, correct either field using the title editor/date/time pickers, and explicitly add the reminder to a session-only list. No notifications, account, or database are involved.
+
+For ambiguous wording such as `Remind me tomorow at 7`, `Buy milk tomorrow 7, please`, or an invalid bare hour such as `tomorrow at 25`, the library rejects the unresolved time instead of quietly scheduling at the reference hour. Supply `7am`, `7pm`, or `19:00`, or select a date and time manually in the demo. A date-only expression such as `tomorrow` still inherits the reference time by design. The preview is always for review; a rule score is not a probability.
+
+**Actual screenshots from an isolated Android API 35 emulator**, using the checked-in Compose demo:
+
+| Parsed reminder | Edited and saved | Ambiguous time: manual review |
+| --- | --- | --- |
+| ![Natural-language reminder parsed as Buy milk at 19:00](../assets/reminder-preview.png) | ![Edited Buy milk for family saved for October 19 at 20:00](../assets/reminder-saved.png) | ![Tomorow at 7 requires a manually chosen date and time](../assets/reminder-needs-review.png) |
+
+The Android screen compiles the **same** `integration/consumer/src/commonMain/kotlin/ReminderDraft.kt` source as the standalone KMP consumer. UI edits and the in-memory list remain Android-only. A parsed range is not silently shortened to a single instant; the screen asks for a single time or manual selection. Manually chosen local times are validated for DST gaps and overlaps before saving.
+
+### How a phrase becomes an instant
+
+The caller fixes a reference instant and timezone. With `2026-10-15T10:15:00Z` and `TimeZone.UTC`, `tomorrow at 5 pm` means the following calendar date at 17:00 UTC: `2026-10-16T17:00:00Z`. In a different timezone the same local phrase may represent a different instant; daylight-saving gaps and overlaps use kotlinx-datetime's resolution policy. The parser does not guess the user's geographic timezone.
+
+```kotlin
+val reference = Instant.parse("2026-10-15T10:15:00Z")
+val match = DateParser().parse("tomorrow at 5 pm", reference, TimeZone.UTC).single()
+check(match.instant == Instant.parse("2026-10-16T17:00:00Z"))
+val us = DateParser().parse("03/04/2026", DateOrder.MDY, reference, TimeZone.UTC)
+val europe = DateParser().parse("03/04/2026", DateOrder.DMY, reference, TimeZone.UTC)
+```
+
+The slash date denotes March 4 with `MDY` and April 3 with `DMY`. Without a selected order, ambiguous slash dates return no match. Never store a reminder without reviewing a partial or ambiguous parse.
 
 ## License and origin
 

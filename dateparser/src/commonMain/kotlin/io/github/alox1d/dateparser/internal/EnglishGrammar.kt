@@ -41,6 +41,14 @@ internal object EnglishGrammar {
     private val conjunction = Regex("\\s+and\\s+", ignoreCase)
 
     fun normalize(text: String, dateOrder: DateOrder?, referenceDate: LocalDate = LocalDate(2000, 1, 1)): String {
+        // An unresolved bare hour must not silently inherit the reference clock.
+        // Only explicit AM/PM or minutes disambiguate these otherwise partial matches.
+        val ambiguousAtHour = Regex("\\bat\\s+\\d{1,3}\\b(?!\\s*(?:[:.]\\d|[ap]\\.?m\\.?))", ignoreCase)
+        val trailingDateHour = Regex(
+            "\\b(?:today|tomorrow|tomorow|yesterday)\\s+\\d{1,3}\\b(?!\\s*(?:[:.]\\d|[ap]\\.?m\\.?))(?=\\s*(?:$|[,;!?]|\\p{So}))",
+            ignoreCase
+        )
+        if (ambiguousAtHour.containsMatchIn(text) || trailingDateHour.containsMatchIn(text)) return REJECTED
         val referenceYear = referenceDate.year
         var rejected = false
         fun date(dayText: String, month: Int, yearText: String = "", ordinal: String = "", namedWeekday: String = ""): String {

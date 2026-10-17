@@ -36,3 +36,5 @@ Verify the shared preview against the public artifacts:
 Without `centralOnly=true`, this consumer first tries the root project's unsigned `build/test-repository` for library development. Keep the flag when following the public demo.
 
 Read the [KMP walkthrough](https://alox1d.github.io/dateparser-kotlin/en/kmp-reminder-demo/) for installation, shared code, user confirmation, and US/EU date handling.
+
+For the interactive Android Compose preview, run `./gradlew :app:installDebug` from the root build and open DateParser. The Android screen compiles this consumer's `src/commonMain/kotlin/ReminderDraft.kt` unchanged, but uses the local library project to preview unreleased parser changes. Real emulator screenshots are linked from the [main README](../../README.md#android-compose-reminder-demo).
