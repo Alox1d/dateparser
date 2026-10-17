@@ -27,5 +27,7 @@ fun parseReminderDraft(
     val match = matches.singleOrNull() ?: return null
     // A recurring interval needs its own scheduling UI and policy.
     if (match.recurrence != null) return null
-    return ReminderDraft(match.remainingText, match.instant, match.endInstant, match.timeZone)
+    // The parser preserves reminder text; the sample trims separator punctuation for UI titles.
+    val title = match.remainingText.trim().trim(',', '-', '—', ' ')
+    return ReminderDraft(title, match.instant, match.endInstant, match.timeZone)
 }

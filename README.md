@@ -126,6 +126,8 @@ Run the relevant checks from the repository root:
 
 The same common behavior suite runs on JVM, Android host tests and iOS simulator. This is not Android device instrumentation coverage. Using the library in shared Kotlin iOS code is supported; a standalone Swift/XCFramework distribution is not part of this release.
 
+**Android API 24:** the published AAR declares `minSdk 26`, so Android 24 consumers cannot use it as-is. kotlinx-datetime uses `java.time` on Android; older API levels require [core library desugaring](https://developer.android.com/studio/write/java8-support) enabled by the consuming app. An isolated build with `minSdk 24` and `coreLibraryDesugaring` (`desugar_jdk_libs:2.1.5`) passed APK compilation, JVM/Android host tests, local KMP publication metadata checks, and a separate Gradle consumer. This verifies **build compatibility only**: no API 24 runtime image was available to test actual date parsing on a device. The supported minimum therefore remains 26.
+
 ## Local development and publication checks
 
 Run these commands from the repository root:
@@ -155,6 +157,14 @@ A range end with no date inherits the start's calendar date. An earlier end cloc
 The checked-in `app` module contains an interactive Compose reminder prototype. Run `./gradlew :app:installDebug` with an Android device or emulator, then open **DateParser**. Enter `Buy milk tomorrow at 7pm`, preview the extracted title and date, correct either field using the title editor/date/time pickers, and explicitly add the reminder to a session-only list. No notifications, account, or database are involved.
 
 For ambiguous wording such as `Remind me tomorow at 7`, the library rejects the unresolved time instead of quietly scheduling at the reference hour. Supply `7am`, `7pm`, or `19:00`, or select a date and time manually in the demo. A date-only expression such as `tomorrow` still inherits the reference time by design. The preview is always for review; a rule score is not a probability.
+
+**Actual screenshots from an isolated Android API 35 emulator**, using the checked-in Compose demo:
+
+| Parsed reminder | Edited and saved | Ambiguous time: manual review |
+| --- | --- | --- |
+| ![Natural-language reminder parsed as Buy milk at 19:00](website/assets/reminder-preview.png) | ![Edited Buy milk for family saved for October 19 at 20:00](website/assets/reminder-saved.png) | ![Tomorow at 7 requires a manually chosen date and time](website/assets/reminder-needs-review.png) |
+
+The Android screen compiles the **same** `integration/consumer/src/commonMain/kotlin/ReminderDraft.kt` source as the standalone KMP consumer. UI edits and the in-memory list remain Android-only. A parsed range is not silently shortened to a single instant; the screen asks for a single time or manual selection. Manually chosen local times are validated for DST gaps and overlaps before saving.
 
 ### How a phrase becomes an instant
 

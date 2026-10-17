@@ -20,6 +20,18 @@ class FeedbackRegressionTest {
         }
     }
 
+    @Test fun unresolvedHoursAreRejectedAcrossCalendarForms() {
+        for (input in listOf(
+            "Pay on 2026-10-18 at 7", "Pay after 2 days at 7", "Завтра at 7",
+            "Buy milk tomorrow 7", "Buy milk today 7"
+        )) {
+            assertTrue(parser.parse(input, reference, TimeZone.UTC).isEmpty(), input)
+        }
+        assertEquals("Buy 7 apples", parser.parse("Buy 7 apples tomorrow", reference, TimeZone.UTC).single().remainingText)
+        assertEquals(Instant.parse("2026-10-16T19:00:00Z"),
+            parser.parse("Buy milk tomorrow at 7 pm", reference, TimeZone.UTC).single().instant)
+    }
+
     @Test fun invalidLeapDayCannotBecomeValidPartialMatch() {
         assertTrue(parser.parse("Pay on February 30, 2026 at 5pm", reference, TimeZone.UTC).isEmpty())
     }
